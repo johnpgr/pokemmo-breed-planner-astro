@@ -1,0 +1,25 @@
+---
+import Themes from 'astro-themes'
+import { Toaster } from '@/components/ui/toaster'
+import { ThemeToggle } from '@/components/theme-toggle'
+---
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <title>Astro</title>
+        <Themes />
+    </head>
+    <body>
+        <header>
+            <ThemeToggle />
+        </header>
+        <h1>Astro</h1>
+        <Toaster>
+			<Index
+        </Toaster>
+    </body>
+</html>
