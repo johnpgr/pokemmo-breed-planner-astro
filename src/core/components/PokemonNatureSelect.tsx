@@ -13,22 +13,14 @@ import {
 } from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Switch } from '@/components/ui/switch'
-import { NatureType, Nature } from '@/data/types'
-import { capitalize, randomString } from '@/lib/utils'
+import { randomString } from '@/lib/utils'
 import { Check, ChevronsUpDown } from 'lucide-react'
 import React from 'react'
+import { usePokemonToBreed } from './PokemonToBreedContext'
+import { PokemonNature } from '../pokemon'
 
-export function NatureSelect({
-    nature,
-    setNature,
-    checked,
-    onCheckedChange,
-}: {
-    nature: NatureType | null
-    setNature: React.Dispatch<React.SetStateAction<NatureType | null>>
-    checked: boolean
-    onCheckedChange: (checked: boolean) => void
-}) {
+export function PokemonNatureSelect(props: { checked: boolean, onCheckedChange: (checked: boolean) => void }) {
+    const ctx = usePokemonToBreed()
     const [search, setSearch] = React.useState('')
     const [isOpen, setIsOpen] = React.useState(false)
 
@@ -37,16 +29,16 @@ export function NatureSelect({
             <div className="flex items-center gap-2">
                 <Switch
                     id="natured-switch"
-                    checked={checked}
-                    onCheckedChange={onCheckedChange}
+                    checked={props.checked}
+                    onCheckedChange={props.onCheckedChange}
                 />
                 Natured?
             </div>
-            {checked && (
+            {props.checked && (
                 <Popover open={isOpen} onOpenChange={setIsOpen}>
                     <PopoverTrigger asChild>
                         <Button variant={'ghost'} className="border">
-                            {nature ?? 'Select a nature'}
+                            {ctx.nature ?? 'Select a nature'}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                     </PopoverTrigger>
@@ -61,25 +53,21 @@ export function NatureSelect({
                             <CommandEmpty>No results.</CommandEmpty>
                             <CommandGroup>
                                 <ScrollArea className="h-72">
-                                    {Object.keys(Nature).map((_nature) => (
+                                    {Object.values(PokemonNature).map((nature) => (
                                         <React.Fragment key={randomString(6)}>
                                             <CommandItem
-                                                value={_nature}
-                                                onSelect={(value) => {
+                                                value={nature}
+                                                onSelect={() => {
                                                     setIsOpen(false)
-                                                    setNature(
-                                                        capitalize(
-                                                            value,
-                                                        ) as NatureType,
-                                                    )
+                                                    ctx.setNature(nature)
                                                 }}
                                                 data-cy={`${nature}-value`}
                                                 className="pl-8 relative"
                                             >
-                                                {nature === _nature ? (
+                                                {ctx.nature === nature ? (
                                                     <Check className="h-4 w-4 absolute top-1/2 -translate-y-1/2 left-2" />
                                                 ) : null}
-                                                {_nature}
+                                                {nature}
                                             </CommandItem>
                                         </React.Fragment>
                                     ))}

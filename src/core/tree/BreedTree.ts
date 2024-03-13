@@ -24,8 +24,8 @@ export class PokemonBreedTree {
             ? finalPokemonNode.ivs.length + 1
             : finalPokemonNode.ivs.length
 
-        const lastRowBreeders = POKEMON_BREEDTREE_LASTROW_MAPPING[generations]
-        assert.exists(lastRowBreeders, 'Invalid generations number')
+        assert([2, 3, 4, 5].includes(generations), 'Invalid generations number')
+        const lastRowBreeders = POKEMON_BREEDTREE_LASTROW_MAPPING[generations as keyof typeof POKEMON_BREEDTREE_LASTROW_MAPPING]
 
         this.initNodes(
             generations,

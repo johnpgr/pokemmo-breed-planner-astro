@@ -1,48 +1,44 @@
-'use client'
-
+import React from 'react'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
-import { usePokemonToBreed } from '@/context/hooks'
-import type { IV, IVMap } from '@/context/types'
-import type { NatureType, Pokemon, PokemonSelect } from '@/pokemons/data/types'
-import React from 'react'
 import Ivs from './ivs'
-import { NatureSelect } from './nature'
-import { Species } from './species'
-import pokemons from '@/pokemons/data/data.json' assert { type: 'json' }
+import { PokemonNatureSelect } from './PokemonNatureSelect'
+import { PokemonSpeciesSelect } from './PokemonSpeciesSelect'
+import { IVSet, usePokemonToBreed } from './PokemonToBreedContext'
+import { PokemonIv } from '../pokemon'
+import { assert } from '@/lib/assert'
+
+const DEFAULT_IV_DROPDOWN_VALUES = [
+    PokemonIv.HP,
+    PokemonIv.Attack,
+    PokemonIv.Defense,
+    PokemonIv.SpecialDefense,
+    PokemonIv.Speed,
+] as const
 
 export function PokemonToBreedSelector() {
     const ctx = usePokemonToBreed()
     const { toast } = useToast()
-    const [currentSelectValues, setCurrentSelectValues] = React.useState<
-        Array<IV>
-    >(['hp', 'attack', 'defense', 'specialDefense', 'speed'])
-    const [numberOf31IVs, setNumberOf31IVs] = React.useState<2 | 3 | 4 | 5>(2)
-    const [pokemon, setPokemon] = React.useState<Pokemon | null>(null)
-    const [ivs, setIvs] = React.useState<Array<IV>>(['hp', 'attack'])
     const [natured, setNatured] = React.useState(false)
-    const [nature, setNature] = React.useState<NatureType | null>(null)
+    const [desired31IVCount, setDesired31IVCount] = React.useState(2)
+    const [selectedIVs, setSelectedIVs] = React.useState(DEFAULT_IV_DROPDOWN_VALUES.slice(0, desired31IVCount))
+    const [currentIVDropdownValues, setCurrentIVDropdownValues] = React.useState(DEFAULT_IV_DROPDOWN_VALUES)
 
     //TODO: Provide the path to the incorrect fields
     function validateIvFields() {
-        const selectedValues = currentSelectValues.slice(0, numberOf31IVs)
+        const selectedValues = currentIVDropdownValues.slice(0, desired31IVCount)
         const uniques = new Set(selectedValues)
         return uniques.size === selectedValues.length
     }
 
     function handleReset() {
-        setPokemon(null)
-        setIvs(['hp', 'attack'])
-        setCurrentSelectValues([
-            'hp',
-            'attack',
-            'defense',
-            'specialDefense',
-            'speed',
-        ])
-        setNumberOf31IVs(2)
+        ctx.setPokemon(undefined)
+        ctx.setNature(undefined)
+        ctx.setIvs(IVSet.DEFAULT)
+        setSelectedIVs(DEFAULT_IV_DROPDOWN_VALUES.slice(0, desired31IVCount))
+        setCurrentIVDropdownValues(DEFAULT_IV_DROPDOWN_VALUES)
+        setDesired31IVCount(2)
         setNatured(false)
-        setNature(null)
     }
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -50,7 +46,7 @@ export function PokemonToBreedSelector() {
         const validIvs = validateIvFields()
 
         //Nature switch true and no nature was selected
-        if (natured && !nature) {
+        if (natured && !ctx.nature) {
             toast({
                 title: 'No nature was selected',
                 description:
@@ -70,24 +66,18 @@ export function PokemonToBreedSelector() {
             return
         }
 
-        //This is to make sure the Ivs are passed in order of current selection
-        const ivMap = {} as IVMap
-        const iterationMap = {
-            '0': 'a',
-            '1': 'b',
-            '2': 'c',
-            '3': 'd',
-            '4': 'e',
-        } as const
+        assert.exists(selectedIVs[0], 'At least 2 IV fields must be selected')
+        assert.exists(selectedIVs[1], 'At least 2 IV fields must be selected')
 
-        for (let i = 0; i < ivs.length; i++) {
-            ivMap[iterationMap[String(i) as keyof typeof iterationMap]] =
-                currentSelectValues[i]
-        }
-
-        ctx.setIvMap(ivMap)
-        ctx.setNature(nature)
-        ctx.setPokemon(pokemon)
+        ctx.setIvs(new IVSet(
+            selectedIVs[0],
+            selectedIVs[1],
+            selectedIVs[2],
+            selectedIVs[3],
+            selectedIVs[4]
+        ))
+        ctx.setNature(undefined)
+        ctx.setPokemon(undefined)
     }
 
     return (
@@ -98,18 +88,8 @@ export function PokemonToBreedSelector() {
             <h1 className="text-2xl font-medium">Select a pokemon to breed</h1>
             <div className="flex w-full flex-col items-center gap-4">
                 <div className="flex w-full flex-col gap-2">
-                    <Species
-                        pokemons={props.pokemons}
-                        pokemon={pokemon}
-                        setPokemon={setPokemon}
-                        getPokemonByName={getPokemonByName}
-                    />
-                    <NatureSelect
-                        checked={natured}
-                        onCheckedChange={setNatured}
-                        nature={nature}
-                        setNature={setNature}
-                    />
+                    <PokemonSpeciesSelect />
+                    <PokemonNatureSelect checked={natured} onCheckedChange={setNatured} />
                     <Ivs
                         natured={natured}
                         setIvs={setIvs}

@@ -1,4 +1,3 @@
-'use client'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
@@ -14,25 +13,7 @@ import React from 'react'
 import { numberOfPokemonsFromIVNumber } from '../consts'
 import { PokemonIv } from '../pokemon'
 
-function defaultIvSelection(): PokemonIv[] {
-    return [
-        PokemonIv.HP,
-        PokemonIv.Attack,
-        PokemonIv.Defense,
-        PokemonIv.SpecialAttack,
-        PokemonIv.SpecialDefense,
-        PokemonIv.Speed,
-    ]
-}
-
-function Ivs({
-    natured,
-    setIvs,
-    currentSelectValues,
-    setCurrentSelectValues,
-    numberOf31IVs,
-    setNumberOf31IVs,
-}: {
+function PokemonIvsSelect(props: {
     natured: boolean
     setIvs: React.Dispatch<React.SetStateAction<Array<IV>>>
     currentSelectValues: Array<IV>
@@ -41,7 +22,7 @@ function Ivs({
     setNumberOf31IVs: React.Dispatch<React.SetStateAction<2 | 3 | 4 | 5>>
 }) {
     function handleNumberOf31Ivs(number: string) {
-        const value = parseInt(number) as 2 | 3 | 4 | 5
+        const value = parseInt(number)
         switch (value) {
             case 2:
                 setIvs([currentSelectValues[0], currentSelectValues[1]])
@@ -184,4 +165,4 @@ function Ivs({
     )
 }
 
-export default React.memo(Ivs)
+export default React.memo(PokemonIvsSelect)
