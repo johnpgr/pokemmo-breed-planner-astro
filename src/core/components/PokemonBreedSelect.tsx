@@ -1,28 +1,34 @@
 import React from 'react'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
-import Ivs from './ivs'
+import Ivs, { PokemonIvsSelect } from './PokemonIvsSelect'
 import { PokemonNatureSelect } from './PokemonNatureSelect'
 import { PokemonSpeciesSelect } from './PokemonSpeciesSelect'
 import { IVSet, usePokemonToBreed } from './PokemonToBreedContext'
-import { PokemonIv } from '../pokemon'
+import { PokemonGender, PokemonIv, PokemonNature, PokemonSpecies } from '../pokemon'
 import { assert } from '@/lib/assert'
+import type { PokemonBreedTreeNode } from '../tree/BreedTreeNode'
+import { DEFAULT_IV_DROPDOWN_VALUES } from './consts'
 
-const DEFAULT_IV_DROPDOWN_VALUES = [
-    PokemonIv.HP,
-    PokemonIv.Attack,
-    PokemonIv.Defense,
-    PokemonIv.SpecialDefense,
-    PokemonIv.Speed,
-] as const
+/**
+ * This type is used to represent the state of the full pokemon node that is going to be used in the PokemonToBreedContext
+ * It is a state object that will change as the user changes the select fields
+ */
+export type PokemonNodeInSelect = {
+    species?: PokemonSpecies,
+    nature?: PokemonNature,
+    ivs: PokemonIv[],
+}
 
-export function PokemonToBreedSelector() {
-    const ctx = usePokemonToBreed()
+export function PokemonToBreedSelect() {
     const { toast } = useToast()
+    const ctx = usePokemonToBreed()
     const [natured, setNatured] = React.useState(false)
     const [desired31IVCount, setDesired31IVCount] = React.useState(2)
-    const [selectedIVs, setSelectedIVs] = React.useState(DEFAULT_IV_DROPDOWN_VALUES.slice(0, desired31IVCount))
     const [currentIVDropdownValues, setCurrentIVDropdownValues] = React.useState(DEFAULT_IV_DROPDOWN_VALUES)
+    const [currentPokemonInSelect, setCurrentPokemonInSelect] = React.useState<PokemonNodeInSelect>({
+        ivs: DEFAULT_IV_DROPDOWN_VALUES.slice(0, desired31IVCount),
+    })
 
     //TODO: Provide the path to the incorrect fields
     function validateIvFields() {
@@ -31,19 +37,26 @@ export function PokemonToBreedSelector() {
         return uniques.size === selectedValues.length
     }
 
-    function handleReset() {
-        ctx.setPokemon(undefined)
-        ctx.setNature(undefined)
-        ctx.setIvs(IVSet.DEFAULT)
-        setSelectedIVs(DEFAULT_IV_DROPDOWN_VALUES.slice(0, desired31IVCount))
-        setCurrentIVDropdownValues(DEFAULT_IV_DROPDOWN_VALUES)
-        setDesired31IVCount(2)
+    function handleResetFields() {
         setNatured(false)
+        setDesired31IVCount(2)
+        setCurrentIVDropdownValues(DEFAULT_IV_DROPDOWN_VALUES)
+        setCurrentPokemonInSelect({
+            ivs: DEFAULT_IV_DROPDOWN_VALUES.slice(0, 2),
+        })
     }
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
-        const validIvs = validateIvFields()
+
+        if (!currentPokemonInSelect.species) {
+            toast({
+                title: 'No pokemon was selected',
+                description: 'You must select a pokemon to breed.',
+                variant: 'destructive',
+            })
+            return
+        }
 
         //Nature switch true and no nature was selected
         if (natured && !ctx.nature) {
@@ -56,7 +69,7 @@ export function PokemonToBreedSelector() {
             return
         }
 
-        if (!validIvs) {
+        if (!validateIvFields()) {
             toast({
                 title: 'Invalid IVs',
                 description:
@@ -66,18 +79,18 @@ export function PokemonToBreedSelector() {
             return
         }
 
-        assert.exists(selectedIVs[0], 'At least 2 IV fields must be selected')
-        assert.exists(selectedIVs[1], 'At least 2 IV fields must be selected')
+        assert.exists(currentPokemonInSelect.ivs[0], 'At least 2 IV fields must be selected')
+        assert.exists(currentPokemonInSelect.ivs[1], 'At least 2 IV fields must be selected')
 
         ctx.setIvs(new IVSet(
-            selectedIVs[0],
-            selectedIVs[1],
-            selectedIVs[2],
-            selectedIVs[3],
-            selectedIVs[4]
+            currentPokemonInSelect.ivs[0],
+            currentPokemonInSelect.ivs[1],
+            currentPokemonInSelect.ivs[2],
+            currentPokemonInSelect.ivs[3],
+            currentPokemonInSelect.ivs[4]
         ))
-        ctx.setNature(undefined)
-        ctx.setPokemon(undefined)
+        ctx.setNature(currentPokemonInSelect.nature)
+        ctx.setPokemon(currentPokemonInSelect.species)
     }
 
     return (
@@ -90,7 +103,7 @@ export function PokemonToBreedSelector() {
                 <div className="flex w-full flex-col gap-2">
                     <PokemonSpeciesSelect />
                     <PokemonNatureSelect checked={natured} onCheckedChange={setNatured} />
-                    <Ivs
+                    <PokemonIvsSelect
                         natured={natured}
                         setIvs={setIvs}
                         currentSelectValues={currentSelectValues}
@@ -106,7 +119,7 @@ export function PokemonToBreedSelector() {
                 <Button
                     type="reset"
                     variant={'destructive'}
-                    onClick={handleReset}
+                    onClick={handleResetFields}
                 >
                     Clear
                 </Button>

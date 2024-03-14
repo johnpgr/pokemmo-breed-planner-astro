@@ -1,13 +1,12 @@
-import { PokemonToBreedSelector } from '@/core/components/pokemon-form'
+import { PokemonToBreedSelect } from '@/core/components/PokemonBreedSelect'
+import { PokemonToBreedContext, usePokemonToBreed } from '@/core/components/PokemonToBreedContext'
 import { PokemonTree } from '@/core/components/tree'
-import { PokemonToBreedContext } from '../context'
-import { usePokemonToBreed } from '@/context/hooks'
 
 export default function Index() {
     const ctx = usePokemonToBreed()
     return (
         <PokemonToBreedContext>
-            <PokemonToBreedSelector />
+            <PokemonToBreedSelect />
             {ctx.pokemon
                 ? <PokemonTree />
                 : null
