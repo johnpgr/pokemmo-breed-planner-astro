@@ -1,4 +1,3 @@
-'use client'
 import { getPokemonByName } from '@/actions/pokemon-by-name'
 import { Button } from '@/components/ui/button'
 import { usePokemonToBreed } from '@/context/hooks'
@@ -10,13 +9,13 @@ import { useBreedMap } from '../use-breed-map'
 import { IvColors } from './iv-colors'
 import { PokemonSelect } from './pokemon-select'
 
-export function PokemonTree() {
+export function PokemonBreedTree() {
     const [selectedPokemons, setSelectedPokemons] = React.useState<
         Array<Pokemon & { position: Position }>
     >([])
     const { pokemon, nature, ivMap } = usePokemonToBreed()
     const ivArray = Object.values(ivMap).filter(Boolean)
-    const generations = (nature ? ivArray.length ! + 1 : ivArray.length)
+    const generations = nature ? ivArray.length! + 1 : ivArray.length
 
     const breedMap = useBreedMap({
         ivMap,

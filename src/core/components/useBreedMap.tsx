@@ -1,33 +1,18 @@
 import React from 'react'
-import type { IV, IVMap } from '@/context/types'
-import { NatureType, Pokemon } from '@/data/types'
-import { useMount } from '@/lib/hooks/use-mount'
-import { BreedError, BreedNodeAndPosition, Breeder } from './breeder'
-import { LastRowMapping, columnsPerRow, pokemonIVsPositions } from './consts'
-import { getBreedPartnerPosition } from './utils'
+import type { PokemonBreedTreeNode } from '../tree/BreedTreeNode'
+import { PokemonBreedTree } from '../tree/BreedTree'
+import type { PokemonBreederKind, PokemonIv } from '../pokemon'
 
-export function useBreedMap({
-    pokemonToBreed,
-    ivMap,
-    nature,
-    numberOf31IvPokemon,
-    setSelectedPokemons,
-}: {
-    ivMap: IVMap
+export function useBreedMap(props: {
     generations: number
-    pokemonToBreed: BreedNode
-    nature: NatureType | null
-    setSelectedPokemons: React.Dispatch<
-        React.SetStateAction<Array<Pokemon & { position: Position }>>
-    >
+    pokemonToBreed: PokemonBreedTreeNode
+    finalPokemonIvMap: Map<PokemonBreederKind, PokemonIv>
 }) {
-    const map = React.useMemo(
-        () => new ObservableMap<Position, BreedNode>([['0,0', pokemonToBreed]]),
+    const map = React.useMemo<PokemonBreedTree>(
+        () => new PokemonBreedTree(props.pokemonToBreed, props.finalPokemonIvMap),
         [],
     )
-    const [lastPositionChange, setLastPositionChange] = React.useState<
-        Array<number> | undefined
-    >()
+    const [lastPositionChange, setLastPositionChange] = React.useState<Array<number> | undefined>()
     const breeder = React.useMemo(() => new Breeder(map), [map])
 
     function setLastRow(lastRowMapping: LastRowMapping) {
@@ -59,9 +44,7 @@ export function useBreedMap({
      * Iterates through all rows starting from the second last row and inserts the correct IVs based on the two direct parents.
      */
     function setRemainingRows() {
-        const numberOfRows = nature
-            ? numberOf31IvPokemon + 1
-            : numberOf31IvPokemon
+        const numberOfRows = nature ? numberOf31IvPokemon + 1 : numberOf31IvPokemon
 
         // Iterate through all rows starting from the second last row.
         for (let row = numberOfRows - 2; row > 0; row--) {
@@ -115,9 +98,7 @@ export function useBreedMap({
             ])
 
             //for the breeder logic
-            setLastPositionChange(
-                change.name.split(',').map((n) => parseInt(n, 10)),
-            )
+            setLastPositionChange(change.name.split(',').map((n) => parseInt(n, 10)))
         })
     })
 
