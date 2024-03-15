@@ -1,7 +1,7 @@
 import fs from 'fs'
 import csvParser from 'csv-parser'
-import { EggGroup, Pokemon } from '@/pokemons'
 import Bun from 'bun'
+import { PokemonEggGroup, PokemonSpecies } from '@/core/pokemon'
 
 const csvDataPath = Bun.resolveSync('./data.csv', import.meta.dirname)
 const jsonDataPath = Bun.resolveSync('./data.json', import.meta.dirname)
@@ -23,85 +23,85 @@ const skippedPokemons = [
     'Darmanitan Zen Mode',
 ]
 
-function fixPokemonEggGroups(pokemon: Pokemon): [EggGroup, EggGroup?] {
+function fixPokemonEggGroups(pokemon: PokemonSpecies): [PokemonEggGroup, PokemonEggGroup?] {
     switch (pokemon.name) {
         case 'Nidorina':
-            return [EggGroup.Field, EggGroup.Monster]
+            return [PokemonEggGroup.Field, PokemonEggGroup.Monster]
         case 'Nidoqueen':
-            return [EggGroup.Field, EggGroup.Monster]
+            return [PokemonEggGroup.Field, PokemonEggGroup.Monster]
         case 'Rotom':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Magnemite':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Magneton':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Magnezone':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Staryu':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Starmie':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Bronzor':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Bronzong':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Solrock':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Lunatone':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Beldum':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Metang':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Metagross':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Baltoy':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Claydol':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Voltorb':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Electrode':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Porygon':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Porygon2':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Porygon-Z':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Klink':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Klang':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Klinklang':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Cryogonal':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Golett':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         case 'Golurk':
-            return [EggGroup.Genderless]
+            return [PokemonEggGroup.Genderless]
         default:
             return pokemon.eggGroups
     }
 }
 
-function parseEggGroup(eggGroup: string): EggGroup | undefined {
+function parseEggGroup(eggGroup: string): PokemonEggGroup | undefined {
     switch (eggGroup) {
         case 'Water 1':
-            return EggGroup.WaterA
+            return PokemonEggGroup.WaterA
         case 'Water 2':
-            return EggGroup.WaterB
+            return PokemonEggGroup.WaterB
         case 'Water 3':
-            return EggGroup.WaterC
+            return PokemonEggGroup.WaterC
         case 'Undiscovered':
-            return EggGroup.CannotBreed
+            return PokemonEggGroup.CannotBreed
         case 'Human-Like':
-            return EggGroup.Humanoid
+            return PokemonEggGroup.Humanoid
         case '':
             return undefined
         default:
-            return eggGroup as EggGroup
+            return eggGroup as PokemonEggGroup
     }
 }
 
@@ -122,7 +122,7 @@ function parseName(name: string): string {
     }
 }
 
-const pokemons: Pokemon[] = []
+const pokemons: PokemonSpecies[] = []
 
 fs.createReadStream(csvDataPath, 'utf8')
     .pipe(
@@ -131,24 +131,27 @@ fs.createReadStream(csvDataPath, 'utf8')
         }),
     )
     .on('data', (row) => {
-        if (
-            skippedPokemons.some((name) =>
-                (row['name'] as string).startsWith(name),
-            )
-        ) {
+        if (skippedPokemons.some((name) => (row['name'] as string).startsWith(name))) {
             return
         }
 
-        const pokemon = new Pokemon(
+        const parsedEggGroups:PokemonEggGroup[] = []
+        const parsedEgg1 = parseEggGroup(row['egg_type_1'])
+        const parsedEgg2 = parseEggGroup(row['egg_type_2'])
+        if (parsedEgg1) {
+            parsedEggGroups.push(parsedEgg1)
+        }
+        if (parsedEgg2) {
+            parsedEggGroups.push(parsedEgg2)
+        }
+
+        const pokemon = new PokemonSpecies(
             parseInt(row['pokedex_number']),
             parseName(row['name']),
-            [row['type_1'], row['type_2']].filter(Boolean),
             //@ts-ignore
-            [
-                parseEggGroup(row['egg_type_1']),
-                parseEggGroup(row['egg_type_2']),
-            ],
-            parseFloat(row['percentage_male']),
+            [row['type_1'], row['type_2']].filter(Boolean),
+            parsedEggGroups,
+            parseFloat(row['percentage_male']) || 0,
         )
 
         const fix = fixPokemonEggGroups(pokemon)

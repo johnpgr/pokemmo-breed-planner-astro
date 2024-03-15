@@ -14,21 +14,22 @@ export enum BreedTreeActionKind {
 export class PokemonBreedTree {
     public nodes = new Map<BreedTreePositionKey, PokemonBreedTreeNode>()
     public breedErrors = new Map<[BreedTreePositionKey, BreedTreePositionKey], BreedErrorKind>()
-    private onChange: (
-        position: BreedTreePositionKey,
-        node: PokemonBreedTreeNode,
-        action: BreedTreeActionKind,
-    ) => void = () => {}
+    private listeners: Set<() => void>
 
-    constructor(finalPokemonNode: PokemonBreedTreeNode, finalPokemonIvMap: Map<PokemonBreederKind, PokemonIv>) {
+    constructor(
+        finalPokemonNode: PokemonBreedTreeNode,
+        finalPokemonIvMap: Map<PokemonBreederKind, PokemonIv>,
+        generations: number,
+        listeners: Set<() => void>,
+    ) {
         this.nodes.set(finalPokemonNode.position.key(), finalPokemonNode)
+        this.listeners = listeners
 
         const natured = Boolean(finalPokemonNode.nature)
 
         assert.exists(finalPokemonNode.ivs, 'Final pokemon should have ivs')
-        const generations = natured ? finalPokemonNode.ivs.length + 1 : finalPokemonNode.ivs.length
-
         assert([2, 3, 4, 5].includes(generations), 'Invalid generations number')
+
         const lastRowBreeders =
             POKEMON_BREEDTREE_LASTROW_MAPPING[generations as keyof typeof POKEMON_BREEDTREE_LASTROW_MAPPING]
 
@@ -40,28 +41,24 @@ export class PokemonBreedTree {
         )
     }
 
-    public subscribe(
-        callbackFn: (position: BreedTreePositionKey, node: PokemonBreedTreeNode, action: BreedTreeActionKind) => void,
-    ) {
-        this.onChange = callbackFn
+    private emitChange() {
+        for (const listener of this.listeners) {
+            listener()
+        }
     }
 
-    public getNode(position: BreedTreePositionKey): PokemonBreedTreeNode | undefined {
-        return this.nodes.get(position)
+    public getNode(position: PokemonBreedTreePosition): PokemonBreedTreeNode | undefined {
+        return this.nodes.get(position.key())
     }
 
-    public setNode(position: BreedTreePositionKey, node: PokemonBreedTreeNode) {
-        this.nodes.set(position, node)
-        this.onChange(position, node, BreedTreeActionKind.Set)
+    public setNode(position: PokemonBreedTreePosition, node: PokemonBreedTreeNode) {
+        this.nodes.set(position.key(), node)
+        this.emitChange()
     }
 
-    public deleteNode(position: BreedTreePositionKey) {
-        this.nodes.set(position, PokemonBreedTreeNode.EMPTY(PokemonBreedTreePosition.fromKey(position)))
-        this.onChange(
-            position,
-            new PokemonBreedTreeNode(PokemonBreedTreePosition.fromKey(position)),
-            BreedTreeActionKind.Delete,
-        )
+    public deleteNode(position: PokemonBreedTreePosition) {
+        this.nodes.set(position.key(), PokemonBreedTreeNode.EMPTY(position))
+        this.emitChange()
     }
 
     private initNodes(

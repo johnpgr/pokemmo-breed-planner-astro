@@ -1,3 +1,5 @@
+import { assert } from "@/lib/assert"
+
 export enum PokemonType {
     Fire = 'Fire',
     Water = 'Water',
@@ -83,13 +85,35 @@ export class PokemonSpecies {
     constructor(
         public number: number,
         public name: string,
-        public types: Readonly<[PokemonType, PokemonType?]>,
-        public eggGroups: Readonly<[PokemonEggGroup, PokemonEggGroup?]>,
+        public types: [PokemonType, PokemonType?],
+        public eggGroups: [PokemonEggGroup, PokemonEggGroup?],
         public percentageMale: number,
     ) {}
 
-    static fromJson(data: string): PokemonSpecies {
-        throw new Error('Method not implemented.')
+    static parse(data: {
+        number: number
+        name: string
+        types: string[]
+        eggGroups: string[]
+        percentageMale: number
+    }): PokemonSpecies {
+        const types = Object.values(PokemonType)
+        const eggGroups = Object.values(PokemonEggGroup)
+
+        //@ts-ignore
+        assert(types.includes(data.types[0]) && types.includes(data.types[1]), 'Invalid type')
+        //@ts-ignore
+        assert(eggGroups.includes(data.eggGroups[0]) && eggGroups.includes(data.eggGroups[1]), 'Invalid egg group')
+
+        return new PokemonSpecies(
+            data.number,
+            data.name,
+            //@ts-ignore
+            [data.types[0], data.types[1]],
+            //@ts-ignore
+            [data.eggGroups[0], data.eggGroups[1]],
+            data.percentageMale,
+        )
     }
 }
 

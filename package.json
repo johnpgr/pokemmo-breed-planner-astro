@@ -9,7 +9,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "prettier": "prettier --write .",
-    "parse-data": "bun run ./src/pokemons/data/parse.ts"
+    "parse-data": "bun run ./src/data/parse.ts"
   },
   "dependencies": {
     "@astrojs/check": "^0.5.6",

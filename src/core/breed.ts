@@ -3,6 +3,7 @@ import type { PokemonBreedTreeNode } from "./tree/BreedTreeNode"
 import { PokemonBreedTreePosition } from "./tree/BreedTreePosition"
 import { PokemonGender, PokemonSpecies } from "./pokemon"
 import { GENDERLESS_POKEMON_EVOLUTION_TREE } from "./consts"
+import type { BreedTreePositionKey } from "./tree/BreedTree"
 
 export enum BreedErrorKind {
     GenderCompatibility = 'GenderCompatibility',
@@ -21,7 +22,7 @@ export class BreedError {
 
 export class Breeder {
     constructor(
-        private readonly breedMap: Map<PokemonBreedTreePosition, PokemonBreedTreeNode>,
+        private readonly breedMap: Map<BreedTreePositionKey, PokemonBreedTreeNode>,
     ) { }
 
     public breed(
