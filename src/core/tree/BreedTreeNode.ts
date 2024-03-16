@@ -1,3 +1,4 @@
+import type { usePokemonToBreed } from '../components/PokemonToBreedContext'
 import type { PokemonGender, PokemonIv, PokemonNature, PokemonSpecies } from '../pokemon'
 import type { PokemonBreedTree } from './BreedTree'
 import { PokemonBreedTreePosition } from './BreedTreePosition'
@@ -13,6 +14,16 @@ export class PokemonBreedTreeNode {
 
     static EMPTY(pos: PokemonBreedTreePosition): PokemonBreedTreeNode {
         return new PokemonBreedTreeNode(pos)
+    }
+
+    static ROOT(ctx: ReturnType<typeof usePokemonToBreed>): PokemonBreedTreeNode {
+        return new PokemonBreedTreeNode(
+            new PokemonBreedTreePosition(0, 0),
+            ctx.pokemon,
+            undefined,
+            undefined,
+            Object.values(ctx.ivs),
+        )
     }
 
     public copy(): PokemonBreedTreeNode {

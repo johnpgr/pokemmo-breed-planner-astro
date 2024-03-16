@@ -1,10 +1,10 @@
 import fs from 'fs'
+import path from 'path'
 import csvParser from 'csv-parser'
-import Bun from 'bun'
 import { PokemonEggGroup, PokemonSpecies } from '@/core/pokemon'
 
-const csvDataPath = Bun.resolveSync('./data.csv', import.meta.dirname)
-const jsonDataPath = Bun.resolveSync('./data.json', import.meta.dirname)
+const csvDataPath = path.resolve(import.meta.dirname, './data.csv')
+const jsonDataPath = path.resolve(import.meta.dirname, './data.json')
 
 const skippedPokemons = [
     'Mega',

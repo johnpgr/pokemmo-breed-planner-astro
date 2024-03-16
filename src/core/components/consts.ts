@@ -6,4 +6,4 @@ export const DEFAULT_IV_DROPDOWN_VALUES = [
     PokemonIv.Defense,
     PokemonIv.SpecialDefense,
     PokemonIv.Speed,
-] as const
+]

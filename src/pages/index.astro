@@ -1,7 +1,8 @@
 ---
+import '../styles.css'
 import Themes from 'astro-themes'
-import { Toaster } from '@/components/ui/toaster'
-import { ThemeToggle } from '@/components/theme-toggle'
+import { ThemeToggle } from '../components/theme-toggle'
+import { Root } from '../components/root'
 ---
 
 <html lang="en">
@@ -15,11 +16,9 @@ import { ThemeToggle } from '@/components/theme-toggle'
     </head>
     <body>
         <header>
-            <ThemeToggle />
+            <ThemeToggle client:load/>
         </header>
         <h1>Astro</h1>
-        <Toaster>
-            <Index/>
-        </Toaster>
+        <Root client:load/>
     </body>
 </html>

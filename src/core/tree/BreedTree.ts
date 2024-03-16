@@ -4,6 +4,7 @@ import { PokemonBreedTreeNode } from './BreedTreeNode'
 import type { BreedErrorKind } from '../breed'
 import { POKEMON_BREEDTREE_LASTROW_MAPPING } from '../consts'
 import { PokemonBreedTreePosition } from './BreedTreePosition'
+import type { IVSet } from '../components/PokemonToBreedContext'
 
 export type BreedTreePositionKey = string
 export enum BreedTreeActionKind {
@@ -18,7 +19,7 @@ export class PokemonBreedTree {
 
     constructor(
         finalPokemonNode: PokemonBreedTreeNode,
-        finalPokemonIvMap: Map<PokemonBreederKind, PokemonIv>,
+        finalPokemonIvMap: IVSet,
         generations: number,
         listeners: Set<() => void>,
     ) {
@@ -65,7 +66,7 @@ export class PokemonBreedTree {
         generations: number,
         lastRowBreedersPositions: ReadonlyMap<BreedTreePositionKey, PokemonBreederKind>,
         finalPokemonNode: PokemonBreedTreeNode,
-        finalPokemonIvs: Map<PokemonBreederKind, PokemonIv>,
+        finalPokemonIvs: IVSet,
     ) {
         // initialize last row
         for (const [k, v] of lastRowBreedersPositions.entries()) {

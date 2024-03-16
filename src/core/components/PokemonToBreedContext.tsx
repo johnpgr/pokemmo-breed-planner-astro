@@ -1,5 +1,5 @@
 import React from 'react'
-import { PokemonIv, PokemonNature, PokemonSpecies } from "@/core/pokemon"
+import { PokemonBreederKind, PokemonIv, PokemonNature, PokemonSpecies } from '@/core/pokemon'
 import { assert } from '@/lib/assert'
 
 export const PokemonToBreedContextPrimitive = React.createContext<IPokemonToBreedContext | null>(null)
@@ -32,19 +32,36 @@ export function usePokemonToBreed() {
     return ctx
 }
 
-export class IVSet{
+export class IVSet {
     constructor(
         public A: PokemonIv,
         public B: PokemonIv,
         public C?: PokemonIv,
         public D?: PokemonIv,
         public E?: PokemonIv,
-    ){ }
+    ) {}
+
+    public get(kind: PokemonBreederKind): PokemonIv | undefined {
+        switch (kind) {
+            case PokemonBreederKind.A:
+                return this.A
+            case PokemonBreederKind.B:
+                return this.B
+            case PokemonBreederKind.C:
+                return this.C
+            case PokemonBreederKind.D:
+                return this.D
+            case PokemonBreederKind.E:
+                return this.E
+            default:
+                return undefined
+        }
+    }
 
     static DEFAULT = new IVSet(PokemonIv.HP, PokemonIv.Attack)
 }
 
-export type IPokemonToBreedContext = {
+export interface IPokemonToBreedContext {
     pokemon: PokemonSpecies | undefined
     setPokemon: React.Dispatch<React.SetStateAction<PokemonSpecies | undefined>>
     ivs: IVSet

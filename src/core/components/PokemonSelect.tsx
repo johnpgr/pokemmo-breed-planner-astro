@@ -9,7 +9,7 @@ import { Loader } from 'lucide-react'
 import React from 'react'
 import { CurrentNodeInfoCard } from './CurrentNodeInfoCard'
 import { PokemonEggGroup, PokemonGender, PokemonSpecies } from '../pokemon'
-import pokemons from '@/data/data.json' assert { type: 'json' }
+import pokemons from '@/data/data.json'
 import { type Color, getColorsByIvs, COLOR_MAP } from './IvColors'
 import type { PokemonBreedTree } from '../tree/BreedTree'
 import type { PokemonBreedTreePosition } from '../tree/BreedTreePosition'
@@ -65,7 +65,7 @@ enum SearchMode {
 }
 
 export function PokemonSelect(props: {
-    selectedPokemon?: PokemonSpecies
+    selectedPokemon: PokemonSpecies | undefined
     position: PokemonBreedTreePosition
     breedTree: PokemonBreedTree
 }) {

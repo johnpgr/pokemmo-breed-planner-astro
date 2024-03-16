@@ -1,3 +1,4 @@
+import type { IVSet } from '../components/PokemonToBreedContext'
 import type { PokemonBreederKind, PokemonIv } from '../pokemon'
 import { PokemonBreedTree } from './BreedTree'
 import type { PokemonBreedTreeNode } from './BreedTreeNode'
@@ -11,7 +12,7 @@ export class BreedTreeStore {
 
     constructor(
         finalPokemonNode: PokemonBreedTreeNode,
-        finalPokemonIvMap: Map<PokemonBreederKind, PokemonIv>,
+        finalPokemonIvMap: IVSet,
         generations: number,
     ) {
         this.breedTree = new PokemonBreedTree(finalPokemonNode, finalPokemonIvMap, generations, this.listeners)

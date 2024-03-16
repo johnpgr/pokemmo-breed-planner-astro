@@ -1,13 +1,12 @@
 import React from 'react'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
-import Ivs, { PokemonIvsSelect } from './PokemonIvsSelect'
+import { PokemonIvsSelect } from './PokemonIvsSelect'
 import { PokemonNatureSelect } from './PokemonNatureSelect'
 import { PokemonSpeciesSelect } from './PokemonSpeciesSelect'
 import { IVSet, usePokemonToBreed } from './PokemonToBreedContext'
-import { PokemonGender, PokemonIv, PokemonNature, PokemonSpecies } from '../pokemon'
+import { PokemonIv, PokemonNature, PokemonSpecies } from '../pokemon'
 import { assert } from '@/lib/assert'
-import type { PokemonBreedTreeNode } from '../tree/BreedTreeNode'
 import { DEFAULT_IV_DROPDOWN_VALUES } from './consts'
 
 /**
@@ -105,11 +104,12 @@ export function PokemonToBreedSelect() {
                     <PokemonNatureSelect checked={natured} onCheckedChange={setNatured} />
                     <PokemonIvsSelect
                         natured={natured}
-                        setIvs={setIvs}
-                        currentSelectValues={currentSelectValues}
-                        setCurrentSelectValues={setCurrentSelectValues}
-                        numberOf31IVs={numberOf31IVs}
-                        setNumberOf31IVs={setNumberOf31IVs}
+                        desired31IVCount={desired31IVCount}
+                        setDesired31IVCount={setDesired31IVCount}
+                        currentPokemonInSelect={currentPokemonInSelect}
+                        currentIVDropdownValues={currentIVDropdownValues}
+                        setCurrentPokemonInSelect={setCurrentPokemonInSelect}
+                        setCurrentIVDropdownValues={setCurrentIVDropdownValues}
                     />
                 </div>
             </div>

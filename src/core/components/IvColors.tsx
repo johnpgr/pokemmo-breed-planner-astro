@@ -1,5 +1,5 @@
-import type { IVSet } from './PokemonToBreedContext';
-import type { PokemonIv, PokemonNature } from '../pokemon';
+import { usePokemonToBreed, type IVSet } from './PokemonToBreedContext';
+import type { PokemonIv } from '../pokemon';
 import { pascalToSpacedPascal } from '@/lib/utils';
 
 export const COLOR_MAP = {
@@ -14,71 +14,73 @@ export const COLOR_MAP = {
 
 export type Color = (typeof COLOR_MAP)[keyof typeof COLOR_MAP]
 
-export function IvColors(props: { ivs: IVSet; nature?: PokemonNature }) {
+export function IvColors() {
+    const ctx = usePokemonToBreed()
+
     return (
         <div className="flex gap-4 mt-4">
             <div className="flex items-center gap-2">
                 <div
                     className="rounded-full p-3 h-4 w-4"
                     style={{
-                        backgroundColor: COLOR_MAP[props.ivs.A],
+                        backgroundColor: COLOR_MAP[ctx.ivs.A],
                     }}
                 />
                 <span className="text-sm">
-                    {pascalToSpacedPascal(props.ivs.A)}
+                    {pascalToSpacedPascal(ctx.ivs.A)}
                 </span>
             </div>
             <div className="flex items-center gap-2">
                 <div
                     className="rounded-full p-3 h-4 w-4"
                     style={{
-                        backgroundColor: COLOR_MAP[props.ivs.B],
+                        backgroundColor: COLOR_MAP[ctx.ivs.B],
                     }}
                 />
                 <span className="text-sm">
-                    {pascalToSpacedPascal(props.ivs.B)}
+                    {pascalToSpacedPascal(ctx.ivs.B)}
                 </span>
             </div>
-            {props.ivs.C ? (
+            {ctx.ivs.C ? (
                 <div className="flex items-center gap-2">
                     <div
                         className="rounded-full p-3 h-4 w-4"
                         style={{
-                            backgroundColor: COLOR_MAP[props.ivs.C],
+                            backgroundColor: COLOR_MAP[ctx.ivs.C],
                         }}
                     />
                     <span className="text-sm">
-                        {pascalToSpacedPascal(props.ivs.C)}
+                        {pascalToSpacedPascal(ctx.ivs.C)}
                     </span>
                 </div>
             ) : null}
-            {props.ivs.D ? (
+            {ctx.ivs.D ? (
                 <div className="flex items-center gap-2">
                     <div
                         className="rounded-full p-3 h-4 w-4"
                         style={{
-                            backgroundColor: COLOR_MAP[props.ivs.D],
+                            backgroundColor: COLOR_MAP[ctx.ivs.D],
                         }}
                     />
                     <span className="text-sm">
-                        {pascalToSpacedPascal(props.ivs.D)}
+                        {pascalToSpacedPascal(ctx.ivs.D)}
                     </span>
                 </div>
             ) : null}
-            {props.ivs.E ? (
+            {ctx.ivs.E ? (
                 <div className="flex items-center gap-2">
                     <div
                         className="rounded-full p-3 h-4 w-4"
                         style={{
-                            backgroundColor: COLOR_MAP[props.ivs.E],
+                            backgroundColor: COLOR_MAP[ctx.ivs.E],
                         }}
                     />
                     <span className="text-sm">
-                        {pascalToSpacedPascal(props.ivs.E)}
+                        {pascalToSpacedPascal(ctx.ivs.E)}
                     </span>
                 </div>
             ) : null}
-            {props.nature ? (
+            {ctx.nature ? (
                 <div className="flex items-center gap-2">
                     <div
                         className="rounded-full p-3 h-4 w-4"
@@ -86,7 +88,7 @@ export function IvColors(props: { ivs: IVSet; nature?: PokemonNature }) {
                             backgroundColor: COLOR_MAP['Nature'],
                         }}
                     />
-                    <span className="text-sm">{props.nature}</span>
+                    <span className="text-sm">{ctx.nature}</span>
                 </div>
             ) : null}
         </div>

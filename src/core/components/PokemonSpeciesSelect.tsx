@@ -17,7 +17,7 @@ import { Separator } from '@/components/ui/separator'
 import { getPokemonSpriteUrl } from '@/lib/utils'
 import clsx from 'clsx'
 import { ChevronsUpDown } from 'lucide-react'
-import pokemons from '@/data/data.json' assert { type: 'json' }
+import pokemons from '@/data/data.json'
 import { usePokemonToBreed } from './PokemonToBreedContext'
 import { PokemonEggGroup, PokemonSpecies, PokemonType } from '../pokemon'
 
