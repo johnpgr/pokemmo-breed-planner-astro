@@ -1,29 +1,18 @@
 import React from 'react'
 import { Button } from '@/components/ui/button'
-import { useBreedMap } from './use-breed-map'
+import { useBreedMap } from './useBreedMap'
 import { usePokemonToBreed } from './PokemonToBreedContext'
 import type { PokemonIv } from '../pokemon'
 import type { PokemonBreedTreeNode } from '../tree/BreedTreeNode'
+import { POKEMON_BREEDTREE_LASTROW_MAPPING } from '../consts'
 
 export function PokemonBreedTree() {
     const ctx = usePokemonToBreed()
-    const [selectedPokemons, setSelectedPokemons] = React.useState<PokemonBreedTreeNode[]>([])
     const ivArray: PokemonIv[] = Object.values(ctx.ivs).filter(Boolean)
     const generations = ctx.nature ? ivArray.length + 1 : ivArray.length
 
     const breedMap = useBreedMap({
-        ivMap,
-        nature,
-        pokemonToBreed: {
-            pokemon: pokemon!,
-            nature,
-            ivs: ivArray,
-            //this is fine because this will always be the correct parents
-            parents: ['1,0', '1,1'],
-            gender: null,
-        },
-        numberOf31IvPokemon: ivArray.length,
-        setSelectedPokemons,
+        generations,
     })
 
     return (

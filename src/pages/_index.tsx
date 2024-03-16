@@ -1,6 +1,6 @@
 import { PokemonToBreedSelect } from '@/core/components/PokemonBreedSelect'
 import { PokemonToBreedContext, usePokemonToBreed } from '@/core/components/PokemonToBreedContext'
-import { PokemonTree } from '@/core/components/tree'
+import { PokemonBreedTree } from '@/core/components/PokemonBreedTree'
 
 export default function Index() {
     const ctx = usePokemonToBreed()
@@ -8,7 +8,7 @@ export default function Index() {
         <PokemonToBreedContext>
             <PokemonToBreedSelect />
             {ctx.pokemon
-                ? <PokemonTree />
+                ? <PokemonBreedTree />
                 : null
             }
         </PokemonToBreedContext>
