@@ -2,7 +2,7 @@ import type { IVSet } from './PokemonToBreedContext';
 import type { PokemonIv, PokemonNature } from '../pokemon';
 import { pascalToSpacedPascal } from '@/lib/utils';
 
-const COLOR_MAP = {
+export const COLOR_MAP = {
     Hp: '#55b651',
     Attack: '#F44336',
     Defense: '#f78025',

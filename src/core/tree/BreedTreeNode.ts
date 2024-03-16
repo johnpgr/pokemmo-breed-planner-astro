@@ -1,4 +1,5 @@
 import type { PokemonGender, PokemonIv, PokemonNature, PokemonSpecies } from '../pokemon'
+import type { PokemonBreedTree } from './BreedTree'
 import { PokemonBreedTreePosition } from './BreedTreePosition'
 
 export class PokemonBreedTreeNode {
@@ -18,10 +19,10 @@ export class PokemonBreedTreeNode {
         return structuredClone(this)
     }
 
-    public getPartnerNode(nodes: Map<string, PokemonBreedTreeNode>): PokemonBreedTreeNode | undefined {
+    public getPartnerNode(tree: PokemonBreedTree): PokemonBreedTreeNode | undefined {
         const partnerCol = this.position.col % 2 === 0 ? this.position.col + 1 : this.position.col - 1
 
-        return nodes.get(new PokemonBreedTreePosition(this.position.row, partnerCol).key())
+        return tree.nodes.get(new PokemonBreedTreePosition(this.position.row, partnerCol).key())
     }
 
     public getParentNodes(

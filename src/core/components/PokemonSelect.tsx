@@ -7,15 +7,16 @@ import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { Loader } from 'lucide-react'
 import React from 'react'
-import { CurrentNodeInformationCard } from './current-node-information-card'
-import { PokemonGender, type PokemonIv, type PokemonSpecies } from '../pokemon'
+import { CurrentNodeInfoCard } from './CurrentNodeInfoCard'
+import { PokemonEggGroup, PokemonGender, PokemonSpecies } from '../pokemon'
 import pokemons from '@/data/data.json' assert { type: 'json' }
-import { type Color, getColorsByIvs } from './IvColors'
-import type { useBreedMap } from './useBreedMap'
+import { type Color, getColorsByIvs, COLOR_MAP } from './IvColors'
 import type { PokemonBreedTree } from '../tree/BreedTree'
 import type { PokemonBreedTreePosition } from '../tree/BreedTreePosition'
 import { usePokemonToBreed } from './PokemonToBreedContext'
-import type { PokemonBreedTreeNode } from '../tree/BreedTreeNode'
+import { assert } from '@/lib/assert'
+import { GENDERLESS_POKEMON_EVOLUTION_TREE } from '../consts'
+import { getPokemonSpriteUrl, randomString } from '@/lib/utils'
 
 const NODE_SCALE_BY_COLOR_AMOUNT = {
     '5': 1,
@@ -33,33 +34,34 @@ const SPRITE_SCALE_BY_COLOR_AMOUNT = {
     '1': 1.5,
 } as const
 
-function filterPokemonByEggGroups(list: PokemonSelectList, currentPokemon: Pokemon): PokemonSelectList {
-    const newList: PokemonSelectList = []
+function filterPokemonByEggGroups(currentPokemon: PokemonSpecies): typeof pokemons {
+    const newList: typeof pokemons = []
 
-    const ditto = list.find((poke) => poke.name === 'Ditto') ?? raise('Ditto should be defined')
+    const ditto = pokemons.find((poke) => poke.number === 132)
+    assert.exists(ditto, 'Ditto should exist')
 
     newList.push(ditto)
 
-    if (currentPokemon.eggTypes.includes('Genderless')) {
-        const breedable = GenderlessPokemonEvolutionTree[
-            currentPokemon.name as keyof typeof GenderlessPokemonEvolutionTree
-        ] as Array<string>
+    if (currentPokemon.eggGroups.includes(PokemonEggGroup.Genderless)) {
+        const breedable =
+            GENDERLESS_POKEMON_EVOLUTION_TREE[currentPokemon.number as keyof typeof GENDERLESS_POKEMON_EVOLUTION_TREE]
 
-        return newList.concat(list.filter((poke) => breedable.includes(poke.name)))
+        return newList.concat(pokemons.filter((poke) => breedable.includes(poke.number)))
     }
 
-    list.forEach((pokemon) => {
-        const compatible = pokemon.eggTypes.some((e) => currentPokemon.eggTypes.includes(e))
-        if (!compatible) return
+    for (const poke of pokemons) {
+        const compatible = poke.eggGroups.some((e) => currentPokemon.eggGroups.includes(e))
+        if (!compatible) continue
 
-        newList.push(pokemon)
-    })
+        newList.push(poke)
+    }
+
     return newList
 }
 
 enum SearchMode {
     All,
-    EggGroupMatches
+    EggGroupMatches,
 }
 
 export function PokemonSelect(props: {
@@ -69,73 +71,54 @@ export function PokemonSelect(props: {
 }) {
     const id = React.useId()
     const ctx = usePokemonToBreed()
-    const isPokemonToBreed = props.position.col === 0 && props.position.row === 0
+    const [pending, startTransition] = React.useTransition()
     const [searchMode, setSearchMode] = React.useState(SearchMode.All)
     const [search, setSearch] = React.useState('')
-    const [gender, setGender] = React.useState(PokemonGender.Male)
-    const [currentNode, setCurrentNode] = React.useState<PokemonBreedTreeNode>()
     const [colors, setColors] = React.useState<Color[]>()
-    const [pending, startTransition] = React.useTransition()
+    const isPokemonToBreed = props.position.col === 0 && props.position.row === 0
+    const currentNode = props.breedTree.getNode(props.position)
 
-    async function handleSelectPokemon(name: string) {
-        const pokemon = pokemons.find((p)=> p.name === name)
-        if (!pokemon) return
+    async function setPokemonSpecies(name: string) {
+        const pokemon = pokemons.find((p) => p.name === name)
+        assert.exists(pokemon, `Pokemon ${name} should exist`)
 
-        const node = breedMap.get(position)
-        if (!node) return
+        assert.exists(currentNode, `Node at ${props.position} should exist`)
 
-        const newNode = {
-            gender: gender,
-            ivs: node.ivs,
-            nature: node.nature,
-            parents: node.parents,
-            pokemon,
-        } satisfies BreedNode
+        const newNode = currentNode.copy()
+        newNode.species = PokemonSpecies.parse(pokemon)
 
-        breedMap.set(position, newNode)
-        setCurrentNode(newNode)
+        props.breedTree.setNode(props.position, newNode)
     }
 
-    function handleChangeGender(gender: GenderType) {
-        setGender(gender)
+    function setGender(gender: PokemonGender) {
+        assert.exists(currentNode, `Node at ${props.position} should exist`)
 
-        if (!selectedPokemon) return
+        const newNode = currentNode.copy()
+        newNode.gender = gender
 
-        const node = breedMap.get(position)
-        if (!node) return
-
-        breedMap.set(position, {
-            ...node,
-            gender,
-        })
+        props.breedTree.setNode(props.position, newNode)
     }
 
     function handleSearchModeChange() {
         startTransition(() => {
-            setSearchMode((prev) => (prev === 'ALL' ? 'EGG_GROUP' : 'ALL'))
+            setSearchMode((prev) => (prev === SearchMode.All ? SearchMode.EggGroupMatches : SearchMode.All))
         })
     }
 
-    const pokemonList = React.useMemo(
-        () => (searchMode === 'ALL' ? pokemons : filterPokemonByEggGroups(pokemons, pokemonToBreed!)),
-        [searchMode],
-    )
-
-    React.useEffect(() => {
-        if (!currentNode) {
-            const currentNode = breedMap.get(position)
-            setCurrentNode(currentNode ?? null)
-        }
-    }, [])
+    const pokemonList = React.useMemo(() => {
+        assert.exists(ctx.pokemon, 'Pokemon in context should exist')
+        return searchMode === SearchMode.All ? pokemons : filterPokemonByEggGroups(ctx.pokemon)
+    }, [searchMode])
 
     React.useEffect(() => {
         if (!currentNode) return
-        if (colors.length > 0) return
 
-        const newColors: Array<Color> = []
+        if (colors && colors.length > 0) return
+
+        const newColors: Color[] = []
 
         if (currentNode.nature) {
-            newColors.push(ColorMap['nature'])
+            newColors.push(COLOR_MAP['Nature'])
         }
 
         if (currentNode.ivs) {
@@ -143,7 +126,7 @@ export function PokemonSelect(props: {
         }
 
         setColors(newColors)
-    }, [currentNode])
+    }, [])
 
     return (
         <Popover>
@@ -152,10 +135,12 @@ export function PokemonSelect(props: {
                     size={'icon'}
                     className="relative rounded-full bg-neutral-300 dark:bg-neutral-800 overflow-hidden"
                     style={{
-                        scale: NodeScaleByColorAmount[String(colors.length) as keyof typeof NodeScaleByColorAmount],
+                        scale: NODE_SCALE_BY_COLOR_AMOUNT[
+                            String(colors?.length ?? 0) as keyof typeof NODE_SCALE_BY_COLOR_AMOUNT
+                        ],
                     }}
                 >
-                    {colors.map((color) => (
+                    {colors?.map((color) => (
                         <div
                             key={randomString(3)}
                             style={{
@@ -165,14 +150,13 @@ export function PokemonSelect(props: {
                             }}
                         />
                     ))}
-                    {selectedPokemon || isPokemonToBreed ? (
-                        // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
+                    {props.selectedPokemon ? (
                         <img
-                            src={getPokemonSpriteUrl(isPokemonToBreed ? pokemonToBreed!.name : selectedPokemon!.name)}
+                            src={getPokemonSpriteUrl(props.selectedPokemon.name)}
                             style={{
                                 imageRendering: 'pixelated',
-                                scale: SpriteScaleByColorAmount[
-                                    String(colors.length) as keyof typeof SpriteScaleByColorAmount
+                                scale: SPRITE_SCALE_BY_COLOR_AMOUNT[
+                                    String(colors?.length ?? 0) as keyof typeof SPRITE_SCALE_BY_COLOR_AMOUNT
                                 ],
                             }}
                             className="mb-1 absolute"
@@ -182,17 +166,17 @@ export function PokemonSelect(props: {
             </PopoverTrigger>
             <PopoverContent className="p-0 flex gap-4 max-w-lg w-full border-none bg-none shadow-none">
                 {currentNode ? (
-                    <CurrentNodeInformationCard
+                    <CurrentNodeInfoCard
                         currentNode={currentNode}
-                        gender={gender}
-                        setGender={handleChangeGender}
-                        breedMap={breedMap}
-                        position={position}
+                        gender={currentNode.gender}
+                        setGender={setGender}
+                        breedMap={props.breedTree}
+                        position={props.position}
                     >
-                        <Button size={'sm'} onClick={() => console.log(breedMap.get(position))}>
+                        <Button size={'sm'} onClick={() => console.log(currentNode)}>
                             Debug
                         </Button>
-                    </CurrentNodeInformationCard>
+                    </CurrentNodeInfoCard>
                 ) : null}
                 {!isPokemonToBreed ? (
                     <Command className="w-72 border">
@@ -203,8 +187,8 @@ export function PokemonSelect(props: {
                             data-cy="search-pokemon-input"
                         />
                         <div className="flex items-center gap-2 text-xs text-foreground/80 p-1">
-                            <Switch checked={searchMode === 'EGG_GROUP'} onCheckedChange={handleSearchModeChange} />
-                            Show only {pokemonToBreed?.name}&apos;s egg groups
+                            <Switch checked={searchMode === SearchMode.All} onCheckedChange={handleSearchModeChange} />
+                            Show only {ctx.pokemon?.name}&apos;s egg groups
                         </div>
                         <CommandEmpty>{!pending ? 'No results' : ''}</CommandEmpty>
                         <CommandGroup>
@@ -214,24 +198,20 @@ export function PokemonSelect(props: {
                                         <Loader className="animate-spin text-primary" />
                                     </div>
                                 ) : (
-                                    <For
-                                        each={pokemonList.filter((pokemon) =>
-                                            pokemon.name.toLowerCase().includes(search.toLowerCase()),
-                                        )}
-                                    >
-                                        {(pokemon) => (
+                                    pokemonList
+                                        .filter((pokemon) => pokemon.name.toLowerCase().includes(search.toLowerCase()))
+                                        .map((pokemon) => (
                                             <React.Fragment key={`${id}:${pokemon.name}`}>
                                                 <CommandItem
                                                     value={pokemon.name}
-                                                    onSelect={handleSelectPokemon}
+                                                    onSelect={setPokemonSpecies}
                                                     data-cy={`${pokemon.name}-value`}
                                                 >
-                                                    {parseNames(pokemon.name)}
+                                                    {pokemon.name}
                                                 </CommandItem>
                                                 <Separator />
                                             </React.Fragment>
-                                        )}
-                                    </For>
+                                        ))
                                 )}
                             </ScrollArea>
                         </CommandGroup>
