@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import csvParser from 'csv-parser'
-import { PokemonEggGroup, PokemonSpecies } from '@/core/pokemon'
+import { PokemonEggGroup, PokemonSpecies } from '../core/pokemon'
 
 const csvDataPath = path.resolve(import.meta.dirname, './data.csv')
 const jsonDataPath = path.resolve(import.meta.dirname, './data.json')
@@ -98,6 +98,8 @@ function parseEggGroup(eggGroup: string): PokemonEggGroup | undefined {
             return PokemonEggGroup.CannotBreed
         case 'Human-Like':
             return PokemonEggGroup.Humanoid
+        case 'Grass':
+            return PokemonEggGroup.Plant
         case '':
             return undefined
         default:

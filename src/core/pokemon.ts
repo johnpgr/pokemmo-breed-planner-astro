@@ -1,4 +1,4 @@
-import { assert } from "@/lib/assert"
+import { assert } from '@/lib/assert'
 
 export enum PokemonType {
     Fire = 'Fire',
@@ -101,9 +101,20 @@ export class PokemonSpecies {
         const eggGroups = Object.values(PokemonEggGroup)
 
         //@ts-ignore
-        assert(types.includes(data.types[0]) && types.includes(data.types[1]), 'Invalid type')
+        assert(types.includes(data.types[0]), 'Invalid type')
+        if (data.types[1]) {
+            //@ts-ignore
+            assert(types.includes(data.types[1]), 'Invalid type')
+        }
         //@ts-ignore
-        assert(eggGroups.includes(data.eggGroups[0]) && eggGroups.includes(data.eggGroups[1]), 'Invalid egg group')
+        assert(eggGroups.includes(data.eggGroups[0]), `Invalid egg group ${data.eggGroups[0]} valids are ${eggGroups}`)
+        if (data.eggGroups[1]) {
+            //@ts-ignore
+            assert(
+                eggGroups.includes(data.eggGroups[1]),
+                `Invalid egg group ${data.eggGroups[1]} valids are ${eggGroups}`,
+            )
+        }
 
         return new PokemonSpecies(
             data.number,

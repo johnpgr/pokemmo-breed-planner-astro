@@ -14,9 +14,9 @@ import { DEFAULT_IV_DROPDOWN_VALUES } from './consts'
  * It is a state object that will change as the user changes the select fields
  */
 export type PokemonNodeInSelect = {
-    species?: PokemonSpecies,
-    nature?: PokemonNature,
-    ivs: PokemonIv[],
+    species?: PokemonSpecies
+    nature?: PokemonNature
+    ivs: PokemonIv[]
 }
 
 export function PokemonToBreedSelect() {
@@ -61,8 +61,7 @@ export function PokemonToBreedSelect() {
         if (natured && !ctx.nature) {
             toast({
                 title: 'No nature was selected',
-                description:
-                    'You must select a nature when using natured breeding.',
+                description: 'You must select a nature when using natured breeding.',
                 variant: 'destructive',
             })
             return
@@ -71,8 +70,7 @@ export function PokemonToBreedSelect() {
         if (!validateIvFields()) {
             toast({
                 title: 'Invalid IVs',
-                description:
-                    "You can't have the same stats in multiple IVs field.",
+                description: "You can't have the same stats in multiple IVs field.",
                 variant: 'destructive',
             })
             return
@@ -81,26 +79,28 @@ export function PokemonToBreedSelect() {
         assert.exists(currentPokemonInSelect.ivs[0], 'At least 2 IV fields must be selected')
         assert.exists(currentPokemonInSelect.ivs[1], 'At least 2 IV fields must be selected')
 
-        ctx.setIvs(new IVSet(
-            currentPokemonInSelect.ivs[0],
-            currentPokemonInSelect.ivs[1],
-            currentPokemonInSelect.ivs[2],
-            currentPokemonInSelect.ivs[3],
-            currentPokemonInSelect.ivs[4]
-        ))
+        ctx.setIvs(
+            new IVSet(
+                currentPokemonInSelect.ivs[0],
+                currentPokemonInSelect.ivs[1],
+                currentPokemonInSelect.ivs[2],
+                currentPokemonInSelect.ivs[3],
+                currentPokemonInSelect.ivs[4],
+            ),
+        )
         ctx.setNature(currentPokemonInSelect.nature)
         ctx.setPokemon(currentPokemonInSelect.species)
     }
 
     return (
-        <form
-            className="container max-w-6xl mx-auto flex flex-col items-center gap-4"
-            onSubmit={handleSubmit}
-        >
+        <form className="container max-w-6xl mx-auto flex flex-col items-center gap-4" onSubmit={handleSubmit}>
             <h1 className="text-2xl font-medium">Select a pokemon to breed</h1>
             <div className="flex w-full flex-col items-center gap-4">
                 <div className="flex w-full flex-col gap-2">
-                    <PokemonSpeciesSelect />
+                    <PokemonSpeciesSelect
+                        currentSelectedNode={currentPokemonInSelect}
+                        setCurrentSelectedNode={setCurrentPokemonInSelect}
+                    />
                     <PokemonNatureSelect checked={natured} onCheckedChange={setNatured} />
                     <PokemonIvsSelect
                         natured={natured}
@@ -116,11 +116,7 @@ export function PokemonToBreedSelect() {
             {/* <pre>{JSON.stringify({ ivs, nature, pokemon }, null, 2)}</pre> */}
             <div className="flex items-center gap-2">
                 <Button type="submit">Start Breeding</Button>
-                <Button
-                    type="reset"
-                    variant={'destructive'}
-                    onClick={handleResetFields}
-                >
+                <Button type="reset" variant={'destructive'} onClick={handleResetFields}>
                     Clear
                 </Button>
             </div>
