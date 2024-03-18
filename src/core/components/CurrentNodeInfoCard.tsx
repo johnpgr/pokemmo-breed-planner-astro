@@ -2,17 +2,22 @@ import React from 'react'
 import { Female, Male } from '@/components/icons'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
-import { pascalToSpacedPascal, getPokemonSpriteUrl, randomString } from '@/lib/utils'
+import {
+    pascalToSpacedPascal,
+    getPokemonSpriteUrl,
+    randomString,
+} from '@/lib/utils'
 import { HelpCircle } from 'lucide-react'
 import { HeldItem, HeldItemsView } from './HeldItemView'
 import type { PokemonBreedTreeNode } from '../tree/BreedTreeNode'
 import { PokemonGender, PokemonIv } from '../pokemon'
 import type { PokemonBreedTree } from '../tree/BreedTree'
 import { assert } from '@/lib/assert'
+import type { PokemonBreedTreePosition } from '../tree/BreedTreePosition'
 
 //TODO: Improve the UI on this.
 export function CurrentNodeInfoCard(props: {
-    position: Position
+    position: PokemonBreedTreePosition
     currentNode: PokemonBreedTreeNode
     breedTree: PokemonBreedTree
     setGender: (gender: PokemonGender) => void
@@ -32,7 +37,9 @@ export function CurrentNodeInfoCard(props: {
 
         assert.exists(breedPartner.ivs, 'IVs must exist in every node')
 
-        const ivThatDoesntExistOnBreedPartner = props.currentNode.ivs.filter((iv) => !breedPartner.ivs!.includes(iv))
+        const ivThatDoesntExistOnBreedPartner = props.currentNode.ivs.filter(
+            (iv) => !breedPartner.ivs!.includes(iv),
+        )
         if (ivThatDoesntExistOnBreedPartner.length === 0) {
             return
         }
@@ -64,7 +71,9 @@ export function CurrentNodeInfoCard(props: {
                     <HeldItemsView
                         item={
                             //if not natured, ivs must exist.
-                            props.currentNode.nature ? HeldItem.Nature : heldItem
+                            props.currentNode.nature
+                                ? HeldItem.Nature
+                                : heldItem
                         }
                     />
                 ) : null}
@@ -72,7 +81,9 @@ export function CurrentNodeInfoCard(props: {
                     {props.currentNode && props.currentNode.species ? (
                         <React.Fragment>
                             <img
-                                src={getPokemonSpriteUrl(props.currentNode.species.name)}
+                                src={getPokemonSpriteUrl(
+                                    props.currentNode.species.name,
+                                )}
                                 style={{
                                     imageRendering: 'pixelated',
                                 }}
@@ -89,9 +100,15 @@ export function CurrentNodeInfoCard(props: {
             <CardContent className="gap-4 flex flex-col">
                 <div className="flex flex-col gap-1">
                     {Boolean(props.currentNode.ivs) ? <p>Ivs:</p> : null}
-                    {props.currentNode.ivs?.map((iv) => <span key={randomString(4)}>31 {pascalToSpacedPascal(iv)}</span>)}
+                    {props.currentNode.ivs?.map((iv) => (
+                        <span key={randomString(4)}>
+                            31 {pascalToSpacedPascal(iv)}
+                        </span>
+                    ))}
                 </div>
-                {props.currentNode.nature && <i className="block">{props.currentNode.nature}</i>}
+                {props.currentNode.nature && (
+                    <i className="block">{props.currentNode.nature}</i>
+                )}
                 {props.currentNode.species ? (
                     <React.Fragment>
                         <div className="flex flex-col gap-1">
@@ -104,7 +121,10 @@ export function CurrentNodeInfoCard(props: {
                             <Male className="fill-blue-500 h-6 w-fit" />
                             <Switch
                                 className="data-[state=unchecked]:bg-primary"
-                                checked={props.currentNode.gender === PokemonGender.Female}
+                                checked={
+                                    props.currentNode.gender ===
+                                    PokemonGender.Female
+                                }
                                 onCheckedChange={onCheckedChange}
                             />
                             <Female className="fill-pink-500 h-6 w-fit -ml-1" />

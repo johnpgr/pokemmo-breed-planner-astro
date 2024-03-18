@@ -1,10 +1,10 @@
-import { assert } from "@/lib/assert"
+import { assert } from '@/lib/assert'
 
 export class PokemonBreedTreePosition {
     constructor(
         public row: number,
         public col: number,
-    ){}
+    ) {}
 
     public key(): string {
         return `${this.row},${this.col}`

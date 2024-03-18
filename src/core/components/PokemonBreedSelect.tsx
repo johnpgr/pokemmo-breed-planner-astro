@@ -24,14 +24,19 @@ export function PokemonToBreedSelect() {
     const ctx = usePokemonToBreed()
     const [natured, setNatured] = React.useState(false)
     const [desired31IVCount, setDesired31IVCount] = React.useState(2)
-    const [currentIVDropdownValues, setCurrentIVDropdownValues] = React.useState(DEFAULT_IV_DROPDOWN_VALUES)
-    const [currentPokemonInSelect, setCurrentPokemonInSelect] = React.useState<PokemonNodeInSelect>({
-        ivs: DEFAULT_IV_DROPDOWN_VALUES.slice(0, desired31IVCount),
-    })
+    const [currentIVDropdownValues, setCurrentIVDropdownValues] =
+        React.useState(DEFAULT_IV_DROPDOWN_VALUES)
+    const [currentPokemonInSelect, setCurrentPokemonInSelect] =
+        React.useState<PokemonNodeInSelect>({
+            ivs: DEFAULT_IV_DROPDOWN_VALUES.slice(0, desired31IVCount),
+        })
 
     //TODO: Provide the path to the incorrect fields
     function validateIvFields() {
-        const selectedValues = currentIVDropdownValues.slice(0, desired31IVCount)
+        const selectedValues = currentIVDropdownValues.slice(
+            0,
+            desired31IVCount,
+        )
         const uniques = new Set(selectedValues)
         return uniques.size === selectedValues.length
     }
@@ -61,7 +66,8 @@ export function PokemonToBreedSelect() {
         if (natured && !ctx.nature) {
             toast({
                 title: 'No nature was selected',
-                description: 'You must select a nature when using natured breeding.',
+                description:
+                    'You must select a nature when using natured breeding.',
                 variant: 'destructive',
             })
             return
@@ -70,14 +76,21 @@ export function PokemonToBreedSelect() {
         if (!validateIvFields()) {
             toast({
                 title: 'Invalid IVs',
-                description: "You can't have the same stats in multiple IVs field.",
+                description:
+                    "You can't have the same stats in multiple IVs field.",
                 variant: 'destructive',
             })
             return
         }
 
-        assert.exists(currentPokemonInSelect.ivs[0], 'At least 2 IV fields must be selected')
-        assert.exists(currentPokemonInSelect.ivs[1], 'At least 2 IV fields must be selected')
+        assert.exists(
+            currentPokemonInSelect.ivs[0],
+            'At least 2 IV fields must be selected',
+        )
+        assert.exists(
+            currentPokemonInSelect.ivs[1],
+            'At least 2 IV fields must be selected',
+        )
 
         ctx.setIvs(
             new IVSet(
@@ -93,7 +106,10 @@ export function PokemonToBreedSelect() {
     }
 
     return (
-        <form className="container max-w-6xl mx-auto flex flex-col items-center gap-4" onSubmit={handleSubmit}>
+        <form
+            className="container max-w-6xl mx-auto flex flex-col items-center gap-4"
+            onSubmit={handleSubmit}
+        >
             <h1 className="text-2xl font-medium">Select a pokemon to breed</h1>
             <div className="flex w-full flex-col items-center gap-4">
                 <div className="flex w-full flex-col gap-2">
@@ -101,7 +117,10 @@ export function PokemonToBreedSelect() {
                         currentSelectedNode={currentPokemonInSelect}
                         setCurrentSelectedNode={setCurrentPokemonInSelect}
                     />
-                    <PokemonNatureSelect checked={natured} onCheckedChange={setNatured} />
+                    <PokemonNatureSelect
+                        checked={natured}
+                        onCheckedChange={setNatured}
+                    />
                     <PokemonIvsSelect
                         natured={natured}
                         desired31IVCount={desired31IVCount}
@@ -116,7 +135,11 @@ export function PokemonToBreedSelect() {
             {/* <pre>{JSON.stringify({ ivs, nature, pokemon }, null, 2)}</pre> */}
             <div className="flex items-center gap-2">
                 <Button type="submit">Start Breeding</Button>
-                <Button type="reset" variant={'destructive'} onClick={handleResetFields}>
+                <Button
+                    type="reset"
+                    variant={'destructive'}
+                    onClick={handleResetFields}
+                >
                     Clear
                 </Button>
             </div>

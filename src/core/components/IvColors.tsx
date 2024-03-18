@@ -1,6 +1,6 @@
-import { usePokemonToBreed, type IVSet } from './PokemonToBreedContext';
-import type { PokemonIv } from '../pokemon';
-import { pascalToSpacedPascal } from '@/lib/utils';
+import { usePokemonToBreed, type IVSet } from './PokemonToBreedContext'
+import type { PokemonIv } from '../pokemon'
+import { pascalToSpacedPascal } from '@/lib/utils'
 
 export const COLOR_MAP = {
     Hp: '#55b651',

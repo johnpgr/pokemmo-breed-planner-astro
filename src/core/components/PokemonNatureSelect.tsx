@@ -19,7 +19,10 @@ import React from 'react'
 import { usePokemonToBreed } from './PokemonToBreedContext'
 import { PokemonNature } from '../pokemon'
 
-export function PokemonNatureSelect(props: { checked: boolean, onCheckedChange: (checked: boolean) => void }) {
+export function PokemonNatureSelect(props: {
+    checked: boolean
+    onCheckedChange: (checked: boolean) => void
+}) {
     const ctx = usePokemonToBreed()
     const [search, setSearch] = React.useState('')
     const [isOpen, setIsOpen] = React.useState(false)
@@ -53,24 +56,28 @@ export function PokemonNatureSelect(props: { checked: boolean, onCheckedChange: 
                             <CommandEmpty>No results.</CommandEmpty>
                             <CommandGroup>
                                 <ScrollArea className="h-72">
-                                    {Object.values(PokemonNature).map((nature) => (
-                                        <React.Fragment key={randomString(6)}>
-                                            <CommandItem
-                                                value={nature}
-                                                onSelect={() => {
-                                                    setIsOpen(false)
-                                                    ctx.setNature(nature)
-                                                }}
-                                                data-cy={`${nature}-value`}
-                                                className="pl-8 relative"
+                                    {Object.values(PokemonNature).map(
+                                        (nature) => (
+                                            <React.Fragment
+                                                key={randomString(6)}
                                             >
-                                                {ctx.nature === nature ? (
-                                                    <Check className="h-4 w-4 absolute top-1/2 -translate-y-1/2 left-2" />
-                                                ) : null}
-                                                {nature}
-                                            </CommandItem>
-                                        </React.Fragment>
-                                    ))}
+                                                <CommandItem
+                                                    value={nature}
+                                                    onSelect={() => {
+                                                        setIsOpen(false)
+                                                        ctx.setNature(nature)
+                                                    }}
+                                                    data-cy={`${nature}-value`}
+                                                    className="pl-8 relative"
+                                                >
+                                                    {ctx.nature === nature ? (
+                                                        <Check className="h-4 w-4 absolute top-1/2 -translate-y-1/2 left-2" />
+                                                    ) : null}
+                                                    {nature}
+                                                </CommandItem>
+                                            </React.Fragment>
+                                        ),
+                                    )}
                                 </ScrollArea>
                             </CommandGroup>
                         </Command>

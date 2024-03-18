@@ -1,23 +1,41 @@
 import type { IVSet } from '../components/PokemonToBreedContext'
 import { PokemonBreedTree } from './BreedTree'
-import type { PokemonBreedTreeNode } from './BreedTreeNode'
+import { PokemonBreedTreeNode } from './BreedTreeNode'
 
 /**
  * Wrapper for PokemonBreedTree that allows for subscription to changes in React
  */
 export class BreedTreeStore {
-    private readonly breedTree: PokemonBreedTree
-    private listeners = new Set<() => void>()
+    private readonly breedTree = PokemonBreedTree.EMPTY()
+    private readonly listeners = new Set<() => void>()
 
-    constructor(
+    public static EMPTY(): BreedTreeStore {
+        return new BreedTreeStore()
+    }
+
+    public init(
         finalPokemonNode: PokemonBreedTreeNode,
         finalPokemonIvMap: IVSet,
         generations: number,
-    ) {
-        this.breedTree = new PokemonBreedTree(finalPokemonNode, finalPokemonIvMap, generations, this.listeners)
+    ): BreedTreeStore {
+        //React double initial render bullshit
+        if (this.breedTree.nodes.size > 0) {
+            return this
+        }
+
+        this.breedTree.init(
+            finalPokemonNode,
+            finalPokemonIvMap,
+            generations,
+            this.listeners,
+        )
+        this.breedTree.emitChange()
+
+        return this
     }
 
-    public subscribe(onStoreChange: () => void): () => void {
+    //using arrow function to bind this
+    public subscribe = (onStoreChange: () => void): (() => void) => {
         this.listeners.add(onStoreChange)
 
         return () => {
@@ -25,7 +43,8 @@ export class BreedTreeStore {
         }
     }
 
-    public getSnapshot(): PokemonBreedTree {
+    //using arrow function to bind this
+    public getSnapshot = (): PokemonBreedTree => {
         return this.breedTree
     }
 }

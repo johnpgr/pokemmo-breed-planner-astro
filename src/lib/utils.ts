@@ -3,7 +3,7 @@ import { twMerge } from 'tailwind-merge'
 import { BASE_SPRITES_URL } from './consts'
 import { assert } from './assert'
 
-export function cn(...inputs: Array<ClassValue>) {
+export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
 
@@ -20,7 +20,9 @@ export function randomString(length: number) {
 }
 
 export function pascalToSpacedPascal(input: string) {
-    return input.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, (str) => str.toUpperCase())
+    return input
+        .replace(/([a-z])([A-Z])/g, '$1 $2')
+        .replace(/^./, (str) => str.toUpperCase())
 }
 
 export function capitalize(input: string) {

@@ -5,10 +5,7 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 
 // https://astro.build/config
 export default defineConfig({
-    integrations: [
-        react(),
-        tailwind(),
-    ],
+    integrations: [react(), tailwind()],
     vite: {
         plugins: [tsconfigPaths()],
     },

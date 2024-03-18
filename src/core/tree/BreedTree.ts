@@ -1,5 +1,5 @@
 import { assert } from '@/lib/assert'
-import { PokemonBreederKind, PokemonIv } from '../pokemon'
+import { PokemonBreederKind } from '../pokemon'
 import { PokemonBreedTreeNode } from './BreedTreeNode'
 import type { BreedErrorKind } from '../breed'
 import { POKEMON_BREEDTREE_LASTROW_MAPPING } from '../consts'
@@ -13,16 +13,26 @@ export enum BreedTreeActionKind {
 }
 
 export class PokemonBreedTree {
-    public nodes = new Map<BreedTreePositionKey, PokemonBreedTreeNode>()
-    public breedErrors = new Map<[BreedTreePositionKey, BreedTreePositionKey], BreedErrorKind>()
-    private listeners: Set<() => void>
+    public readonly nodes = new Map<
+        BreedTreePositionKey,
+        PokemonBreedTreeNode
+    >()
+    public readonly breedErrors = new Map<
+        [BreedTreePositionKey, BreedTreePositionKey],
+        BreedErrorKind
+    >()
+    private listeners: Set<() => void> | undefined
 
-    constructor(
+    public static EMPTY(): PokemonBreedTree {
+        return new PokemonBreedTree()
+    }
+
+    public init(
         finalPokemonNode: PokemonBreedTreeNode,
         finalPokemonIvMap: IVSet,
         generations: number,
         listeners: Set<() => void>,
-    ) {
+    ): PokemonBreedTree {
         this.nodes.set(finalPokemonNode.position.key(), finalPokemonNode)
         this.listeners = listeners
 
@@ -32,7 +42,9 @@ export class PokemonBreedTree {
         assert([2, 3, 4, 5].includes(generations), 'Invalid generations number')
 
         const lastRowBreeders =
-            POKEMON_BREEDTREE_LASTROW_MAPPING[generations as keyof typeof POKEMON_BREEDTREE_LASTROW_MAPPING]
+            POKEMON_BREEDTREE_LASTROW_MAPPING[
+                generations as keyof typeof POKEMON_BREEDTREE_LASTROW_MAPPING
+            ]
 
         this.initNodes(
             generations,
@@ -40,19 +52,31 @@ export class PokemonBreedTree {
             finalPokemonNode,
             finalPokemonIvMap,
         )
+
+        return this
     }
 
-    private emitChange() {
+    public emitChange() {
+        if(!this.listeners) {
+            console.log('No listeners')
+            return
+        }
+        console.log(`Emitting change for ${this.listeners.size} listeners`)
         for (const listener of this.listeners) {
             listener()
         }
     }
 
-    public getNode(position: PokemonBreedTreePosition): PokemonBreedTreeNode | undefined {
+    public getNode(
+        position: PokemonBreedTreePosition,
+    ): PokemonBreedTreeNode | undefined {
         return this.nodes.get(position.key())
     }
 
-    public setNode(position: PokemonBreedTreePosition, node: PokemonBreedTreeNode) {
+    public setNode(
+        position: PokemonBreedTreePosition,
+        node: PokemonBreedTreeNode,
+    ) {
         this.nodes.set(position.key(), node)
         this.emitChange()
     }
@@ -64,7 +88,10 @@ export class PokemonBreedTree {
 
     private initNodes(
         generations: number,
-        lastRowBreedersPositions: ReadonlyMap<BreedTreePositionKey, PokemonBreederKind>,
+        lastRowBreedersPositions: ReadonlyMap<
+            BreedTreePositionKey,
+            PokemonBreederKind
+        >,
         finalPokemonNode: PokemonBreedTreeNode,
         finalPokemonIvs: IVSet,
     ) {
@@ -75,7 +102,13 @@ export class PokemonBreedTree {
                     const position = PokemonBreedTreePosition.fromKey(k)
                     this.nodes.set(
                         position.key(),
-                        new PokemonBreedTreeNode(position, undefined, undefined, finalPokemonNode.nature, undefined),
+                        new PokemonBreedTreeNode(
+                            position,
+                            undefined,
+                            undefined,
+                            finalPokemonNode.nature,
+                            undefined,
+                        ),
                     )
                     break
                 }
@@ -86,7 +119,13 @@ export class PokemonBreedTree {
 
                     this.nodes.set(
                         position.key(),
-                        new PokemonBreedTreeNode(position, undefined, undefined, undefined, [ivs]),
+                        new PokemonBreedTreeNode(
+                            position,
+                            undefined,
+                            undefined,
+                            undefined,
+                            [ivs],
+                        ),
                     )
                     break
                 }
@@ -115,7 +154,16 @@ export class PokemonBreedTree {
 
                 const nature = p1Node.nature ?? p2Node.nature ?? undefined
 
-                this.nodes.set(pos.key(), new PokemonBreedTreeNode(pos, undefined, undefined, nature, ivs))
+                this.nodes.set(
+                    pos.key(),
+                    new PokemonBreedTreeNode(
+                        pos,
+                        undefined,
+                        undefined,
+                        nature,
+                        ivs,
+                    ),
+                )
                 col = col + 1
             }
             row = row - 1

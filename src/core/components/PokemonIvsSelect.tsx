@@ -27,26 +27,34 @@ export const pokemonBreederKindCountByGenerations = {
 } as const
 
 export function PokemonIvsSelect(props: {
-    natured: boolean,
-    desired31IVCount: number,
+    natured: boolean
+    desired31IVCount: number
     setDesired31IVCount: React.Dispatch<React.SetStateAction<number>>
-    currentIVDropdownValues: PokemonIv[],
-    setCurrentIVDropdownValues: React.Dispatch<React.SetStateAction<PokemonIv[]>>,
-    currentPokemonInSelect: PokemonNodeInSelect,
-    setCurrentPokemonInSelect: React.Dispatch<React.SetStateAction<PokemonNodeInSelect>>
+    currentIVDropdownValues: PokemonIv[]
+    setCurrentIVDropdownValues: React.Dispatch<
+        React.SetStateAction<PokemonIv[]>
+    >
+    currentPokemonInSelect: PokemonNodeInSelect
+    setCurrentPokemonInSelect: React.Dispatch<
+        React.SetStateAction<PokemonNodeInSelect>
+    >
 }) {
     function handleDesired31IvCountChange(number: string) {
         const value = parseInt(number)
         const ivSet = new Set(props.currentIVDropdownValues.slice(0, value))
         props.setCurrentPokemonInSelect((prev) => ({
             ...prev,
-            ivs: Array.from(ivSet)
+            ivs: Array.from(ivSet),
         }))
     }
 
     const pokemonCount = props.natured
-        ? pokemonBreederKindCountByGenerations[props.desired31IVCount as keyof typeof pokemonBreederKindCountByGenerations].natured
-        : pokemonBreederKindCountByGenerations[props.desired31IVCount as keyof typeof pokemonBreederKindCountByGenerations].natureless
+        ? pokemonBreederKindCountByGenerations[
+              props.desired31IVCount as keyof typeof pokemonBreederKindCountByGenerations
+          ].natured
+        : pokemonBreederKindCountByGenerations[
+              props.desired31IVCount as keyof typeof pokemonBreederKindCountByGenerations
+          ].natureless
 
     // function handleChange(value: PokemonIv, index: number) {
     //     const previousValue = props.currentIVDropdownValues[index]
@@ -87,7 +95,7 @@ export function PokemonIvsSelect(props: {
         props.setCurrentIVDropdownValues(newDropDownValues)
         props.setCurrentPokemonInSelect((prev) => ({
             ...prev,
-            ivs: newDropDownValues.slice(0, props.desired31IVCount)
+            ivs: newDropDownValues.slice(0, props.desired31IVCount),
         }))
     }
 
@@ -125,11 +133,15 @@ export function PokemonIvsSelect(props: {
                         </Label>
                         <Select
                             value={props.currentIVDropdownValues[i]!}
-                            onValueChange={(v) => handleIvSelectChange(v as PokemonIv, i)}
+                            onValueChange={(v) =>
+                                handleIvSelectChange(v as PokemonIv, i)
+                            }
                         >
                             <SelectTrigger>
                                 <SelectValue
-                                    aria-label={props.currentIVDropdownValues[i]}
+                                    aria-label={
+                                        props.currentIVDropdownValues[i]
+                                    }
                                 >
                                     {pascalToSpacedPascal(
                                         props.currentIVDropdownValues[i]!,

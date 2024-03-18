@@ -1,8 +1,14 @@
 import React from 'react'
-import { PokemonBreederKind, PokemonIv, PokemonNature, PokemonSpecies } from '@/core/pokemon'
+import {
+    PokemonBreederKind,
+    PokemonIv,
+    PokemonNature,
+    PokemonSpecies,
+} from '@/core/pokemon'
 import { assert } from '@/lib/assert'
 
-export const PokemonToBreedContextPrimitive = React.createContext<IPokemonToBreedContext | null>(null)
+export const PokemonToBreedContextPrimitive =
+    React.createContext<IPokemonToBreedContext | null>(null)
 
 export function PokemonToBreedContext(props: { children: React.ReactNode }) {
     const [pokemon, setPokemon] = React.useState<PokemonSpecies>()
@@ -27,7 +33,10 @@ export function PokemonToBreedContext(props: { children: React.ReactNode }) {
 
 export function usePokemonToBreed() {
     const ctx = React.useContext(PokemonToBreedContextPrimitive)
-    assert.exists(ctx, 'usePokemonToBreed must be used within a PokemonToBreedContextProvider')
+    assert.exists(
+        ctx,
+        'usePokemonToBreed must be used within a PokemonToBreedContextProvider',
+    )
 
     return ctx
 }

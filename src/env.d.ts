@@ -1,3 +1,3 @@
 /// <reference types="astro/client" />
 
-import "@total-typescript/ts-reset"
+import '@total-typescript/ts-reset'

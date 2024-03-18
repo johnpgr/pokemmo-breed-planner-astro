@@ -1,7 +1,17 @@
 import { Button } from '@/components/ui/button'
 
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+} from '@/components/ui/command'
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
@@ -34,7 +44,9 @@ const SPRITE_SCALE_BY_COLOR_AMOUNT = {
     '1': 1.5,
 } as const
 
-function filterPokemonByEggGroups(currentPokemon: PokemonSpecies): typeof pokemons {
+function filterPokemonByEggGroups(
+    currentPokemon: PokemonSpecies,
+): typeof pokemons {
     const newList: typeof pokemons = []
 
     const ditto = pokemons.find((poke) => poke.number === 132)
@@ -44,13 +56,19 @@ function filterPokemonByEggGroups(currentPokemon: PokemonSpecies): typeof pokemo
 
     if (currentPokemon.eggGroups.includes(PokemonEggGroup.Genderless)) {
         const breedable =
-            GENDERLESS_POKEMON_EVOLUTION_TREE[currentPokemon.number as keyof typeof GENDERLESS_POKEMON_EVOLUTION_TREE]
+            GENDERLESS_POKEMON_EVOLUTION_TREE[
+                currentPokemon.number as keyof typeof GENDERLESS_POKEMON_EVOLUTION_TREE
+            ]
 
-        return newList.concat(pokemons.filter((poke) => breedable.includes(poke.number)))
+        return newList.concat(
+            pokemons.filter((poke) => breedable.includes(poke.number)),
+        )
     }
 
     for (const poke of pokemons) {
-        const compatible = poke.eggGroups.some((e) => currentPokemon.eggGroups.includes(e))
+        const compatible = poke.eggGroups.some((e) =>
+            currentPokemon.eggGroups.includes(e),
+        )
         if (!compatible) continue
 
         newList.push(poke)
@@ -75,19 +93,20 @@ export function PokemonSelect(props: {
     const [searchMode, setSearchMode] = React.useState(SearchMode.All)
     const [search, setSearch] = React.useState('')
     const [colors, setColors] = React.useState<Color[]>()
-    const isPokemonToBreed = props.position.col === 0 && props.position.row === 0
+    const isPokemonToBreed =
+        props.position.col === 0 && props.position.row === 0
     const currentNode = props.breedTree.getNode(props.position)
 
     async function setPokemonSpecies(name: string) {
-        const pokemon = pokemons.find((p) => p.name === name)
+        const pokemon = pokemons.find((p) => p.name.toLowerCase() === name)
         assert.exists(pokemon, `Pokemon ${name} should exist`)
 
         assert.exists(currentNode, `Node at ${props.position} should exist`)
 
-        const newNode = currentNode.copy()
-        newNode.species = PokemonSpecies.parse(pokemon)
+        currentNode.species = PokemonSpecies.parse(pokemon)
 
-        props.breedTree.setNode(props.position, newNode)
+        console.log('Setting node', currentNode)
+        props.breedTree.emitChange()
     }
 
     function setGender(gender: PokemonGender) {
@@ -101,13 +120,19 @@ export function PokemonSelect(props: {
 
     function handleSearchModeChange() {
         startTransition(() => {
-            setSearchMode((prev) => (prev === SearchMode.All ? SearchMode.EggGroupMatches : SearchMode.All))
+            setSearchMode((prev) =>
+                prev === SearchMode.All
+                    ? SearchMode.EggGroupMatches
+                    : SearchMode.All,
+            )
         })
     }
 
     const pokemonList = React.useMemo(() => {
         assert.exists(ctx.pokemon, 'Pokemon in context should exist')
-        return searchMode === SearchMode.All ? pokemons : filterPokemonByEggGroups(ctx.pokemon)
+        return searchMode === SearchMode.All
+            ? pokemons
+            : filterPokemonByEggGroups(ctx.pokemon)
     }, [searchMode])
 
     React.useEffect(() => {
@@ -136,7 +161,9 @@ export function PokemonSelect(props: {
                     className="relative rounded-full bg-neutral-300 dark:bg-neutral-800 overflow-hidden"
                     style={{
                         scale: NODE_SCALE_BY_COLOR_AMOUNT[
-                            String(colors?.length ?? 0) as keyof typeof NODE_SCALE_BY_COLOR_AMOUNT
+                            String(
+                                colors?.length ?? 0,
+                            ) as keyof typeof NODE_SCALE_BY_COLOR_AMOUNT
                         ],
                     }}
                 >
@@ -152,11 +179,15 @@ export function PokemonSelect(props: {
                     ))}
                     {props.selectedPokemon ? (
                         <img
-                            src={getPokemonSpriteUrl(props.selectedPokemon.name)}
+                            src={getPokemonSpriteUrl(
+                                props.selectedPokemon.name,
+                            )}
                             style={{
                                 imageRendering: 'pixelated',
                                 scale: SPRITE_SCALE_BY_COLOR_AMOUNT[
-                                    String(colors?.length ?? 0) as keyof typeof SPRITE_SCALE_BY_COLOR_AMOUNT
+                                    String(
+                                        colors?.length ?? 0,
+                                    ) as keyof typeof SPRITE_SCALE_BY_COLOR_AMOUNT
                                 ],
                             }}
                             className="mb-1 absolute"
@@ -167,13 +198,15 @@ export function PokemonSelect(props: {
             <PopoverContent className="p-0 flex gap-4 max-w-lg w-full border-none bg-none shadow-none">
                 {currentNode ? (
                     <CurrentNodeInfoCard
+                        breedTree={props.breedTree}
                         currentNode={currentNode}
-                        gender={currentNode.gender}
-                        setGender={setGender}
-                        breedMap={props.breedTree}
                         position={props.position}
+                        setGender={setGender}
                     >
-                        <Button size={'sm'} onClick={() => console.log(currentNode)}>
+                        <Button
+                            size={'sm'}
+                            onClick={() => console.log(currentNode)}
+                        >
                             Debug
                         </Button>
                     </CurrentNodeInfoCard>
@@ -187,10 +220,15 @@ export function PokemonSelect(props: {
                             data-cy="search-pokemon-input"
                         />
                         <div className="flex items-center gap-2 text-xs text-foreground/80 p-1">
-                            <Switch checked={searchMode === SearchMode.All} onCheckedChange={handleSearchModeChange} />
+                            <Switch
+                                checked={searchMode === SearchMode.All}
+                                onCheckedChange={handleSearchModeChange}
+                            />
                             Show only {ctx.pokemon?.name}&apos;s egg groups
                         </div>
-                        <CommandEmpty>{!pending ? 'No results' : ''}</CommandEmpty>
+                        <CommandEmpty>
+                            {!pending ? 'No results' : ''}
+                        </CommandEmpty>
                         <CommandGroup>
                             <ScrollArea className="h-72">
                                 {pending ? (
@@ -199,9 +237,15 @@ export function PokemonSelect(props: {
                                     </div>
                                 ) : (
                                     pokemonList
-                                        .filter((pokemon) => pokemon.name.toLowerCase().includes(search.toLowerCase()))
+                                        .filter((pokemon) =>
+                                            pokemon.name
+                                                .toLowerCase()
+                                                .includes(search.toLowerCase()),
+                                        )
                                         .map((pokemon) => (
-                                            <React.Fragment key={`${id}:${pokemon.name}`}>
+                                            <React.Fragment
+                                                key={`${id}:${pokemon.name}`}
+                                            >
                                                 <CommandItem
                                                     value={pokemon.name}
                                                     onSelect={setPokemonSpecies}

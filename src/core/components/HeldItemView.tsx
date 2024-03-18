@@ -1,7 +1,8 @@
 import { BASE_ITEM_SPRITES_URL } from '@/lib/consts'
 
 function getEvItemSprite(item: string) {
-    if (item === 'everstone') return `${BASE_ITEM_SPRITES_URL}/hold-item/${item}.png`
+    if (item === 'everstone')
+        return `${BASE_ITEM_SPRITES_URL}/hold-item/${item}.png`
 
     return `${BASE_ITEM_SPRITES_URL}/ev-item/${item}.png`
 }

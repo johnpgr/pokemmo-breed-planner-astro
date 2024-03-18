@@ -1,4 +1,4 @@
-import { PokemonIv } from "../pokemon";
+import { PokemonIv } from '../pokemon'
 
 export const DEFAULT_IV_DROPDOWN_VALUES = [
     PokemonIv.HP,
